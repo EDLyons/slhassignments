@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PH 120R — In-Class Group Activities</title>
+<style>
+  :root{
+    --paper: #F2EEE2;
+    --card: #FBF9F1;
+    --ink: #221F19;
+    --ink-soft: #55503F;
+    --navy: #1F3B57;
+    --forest: #2E5C4E;
+    --rust: #9C3B2C;
+    --line: #D2C6A3;
+    --line-soft: #E4DAC0;
+    --mono: 'Courier New', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+    --radius: 3px;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  #app{ max-width: 900px; margin: 0 auto; padding: 20px 20px 80px; }
+
+  /* ---------- Header ---------- */
+  .masthead{
+    border-bottom: 3px double var(--ink);
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+    display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:10px;
+  }
+  .masthead .course{
+    font-family: var(--mono);
+    letter-spacing: 2px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+  }
+  .masthead h1{
+    margin: 2px 0 0;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .masthead .sub{ font-size: 13px; color: var(--ink-soft); font-family: var(--mono); }
+
+  .controls-row{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    margin-bottom: 20px;
+  }
+  select, input[type=text], textarea{
+    font-family: var(--serif);
+    font-size: 15px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+  }
+  textarea{ width:100%; resize: vertical; font-family: inherit; }
+  label{ font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft); display:block; margin-bottom:4px; }
+
+  .role-toggle{ display:flex; border:1px solid var(--ink); border-radius: var(--radius); overflow:hidden; }
+  .role-toggle button{
+    font-family: var(--mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+    background: var(--card); border:none; padding: 8px 14px; cursor:pointer; color: var(--ink-soft);
+  }
+  .role-toggle button.active{ background: var(--navy); color: #fff; }
+  .role-toggle button:not(:last-child){ border-right: 1px solid var(--ink); }
+
+  .week-select-wrap{ display:flex; align-items:center; gap:8px; }
+  .week-tab{
+    font-family: var(--mono); font-size: 13px; background: var(--ink); color: var(--paper);
+    padding: 3px 8px; border-radius: 2px;
+  }
+
+  button.btn{
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.5px; text-transform: uppercase;
+    background: var(--navy); color:#fff; border:none; padding: 10px 16px; border-radius: var(--radius);
+    cursor:pointer;
+  }
+  button.btn.secondary{ background: transparent; color: var(--navy); border: 1px solid var(--navy); }
+  button.btn.rust{ background: var(--rust); }
+  button.btn.forest{ background: var(--forest); }
+  button.btn:disabled{ opacity: 0.45; cursor: not-allowed; }
+  button.btn.small{ font-size: 11px; padding: 6px 10px; }
+
+  /* ---------- Cards ---------- */
+  .card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .card h2{ font-size: 15px; margin: 0 0 12px; letter-spacing: 0.3px; }
+  .card h2 .idx{ font-family: var(--mono); color: var(--ink-soft); margin-right: 8px; }
+  .field{ margin-bottom: 14px; }
+  .hint{ font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; }
+
+  /* ---------- Stamp ("New this week") ---------- */
+  .stamp-wrap{ display:flex; justify-content:flex-end; margin: -6px 0 10px; }
+  .stamp{
+    display:inline-block;
+    border: 2.5px dashed var(--rust);
+    color: var(--rust);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    transform: rotate(-4deg);
+    border-radius: 4px;
+    opacity: 0.9;
+  }
+
+  /* ---------- Context card ---------- */
+  .context-card{ border-left: 4px solid var(--navy); }
+  .context-card .topic{
+    font-family: var(--mono); font-size: 12px; text-transform:uppercase; letter-spacing:1px; color: var(--navy);
+  }
+  .context-body{ white-space: pre-wrap; margin-top: 6px; }
+
+  /* ---------- Timer ---------- */
+  .timer-box{ display:flex; align-items:center; gap:14px; }
+  .timer-display{ font-family: var(--mono); font-size: 26px; letter-spacing: 2px; background: var(--ink); color: var(--paper); padding: 6px 14px; border-radius: 3px; }
+  .timer-display.done{ background: var(--forest); }
+
+  /* ---------- Table (week 3) ---------- */
+  table.policy-table{ border-collapse: collapse; width: 100%; }
+  table.policy-table th, table.policy-table td{ border: 1px solid var(--line); padding: 6px; vertical-align: top; }
+  table.policy-table input[type=text]{ width: 100%; }
+  table.policy-table th{ background: var(--line-soft); }
+  table.policy-table .corner{ background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: 11px; }
+
+  /* ---------- Logic model ---------- */
+  .logic-row{ display:flex; align-items:stretch; gap: 6px; flex-wrap: wrap; }
+  .logic-box{ flex: 1 1 140px; min-width: 140px; }
+  .logic-box label.box-label{ font-family: var(--mono); font-size: 10px; }
+  .logic-arrow{ display:flex; align-items:center; justify-content:center; font-size: 20px; color: var(--navy); padding: 0 2px; }
+  @media (max-width: 640px){
+    .logic-row{ flex-direction: column; }
+    .logic-arrow{ transform: rotate(90deg); padding: 4px 0; }
+  }
+
+  /* ---------- Stakeholder blocks ---------- */
+  .stake-block{ border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 10px; margin-bottom: 10px; background: #fff; }
+
+  /* ---------- Peer panel ---------- */
+  .peer-item{ border-left: 3px solid var(--forest); padding: 8px 12px; margin-bottom: 10px; background: #fff; }
+  .peer-item .peer-label{ font-family: var(--mono); font-size: 10.5px; color: var(--forest); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ---------- Past submissions ---------- */
+  details.past-week{ border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 8px; background: var(--card); }
+  details.past-week summary{ cursor:pointer; padding: 10px 14px; font-family: var(--mono); font-size: 13px; }
+  details.past-week .past-body{ padding: 0 14px 14px; }
+  .comment-box{ background: #FFF9EC; border-left: 3px solid var(--rust); padding: 8px 10px; margin-top: 10px; font-size: 14px; }
+  .comment-box .who{ font-family: var(--mono); font-size: 10.5px; color: var(--rust); text-transform: uppercase; }
+
+  /* ---------- Instructor submissions list ---------- */
+  .sub-row{ border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 10px; background: var(--card); }
+  .sub-row .meta{ font-family: var(--mono); font-size: 11px; color: var(--ink-soft); display:flex; justify-content:space-between; margin-bottom: 6px; }
+  .sub-row textarea{ min-height: 50px; }
+  .featured-badge{ font-family: var(--mono); font-size: 10px; background: var(--forest); color:#fff; padding: 2px 6px; border-radius: 2px; margin-left: 6px;}
+
+  .notice{ font-size: 12.5px; color: var(--ink-soft); border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 20px; }
+  .empty{ font-size: 14px; color: var(--ink-soft); font-style: italic; }
+  .required-badge{ color: var(--rust); font-family: var(--mono); font-size: 11px; }
+  .status-line{ font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+  .flex-between{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+  a.download-link{ color: var(--navy); }
+  .toast{ position: fixed; bottom: 20px; right: 20px; background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: var(--radius); font-family: var(--mono); font-size: 12.5px; opacity: 0; transition: opacity 0.25s; pointer-events:none; }
+  .toast.show{ opacity: 0.95; }
+</style>
+</head>
+<body>
+<div id="app">Loading…</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   PH 120R — In-Class Group Activities  (prototype)
+   Single-file HTML app using window.storage for persistence.
+   NOTE: This is a functional prototype, not a production system —
+   there is no real authentication. "Student ID" is self-reported.
+   ============================================================ */
+
+const WEEKS = [
+  { n:1, topic:"Obesity, Physical Activity & Nutrition", extra:"none" },
+  { n:2, topic:"Tobacco", extra:"none" },
+  { n:3, topic:"Substance Use Disorders", extra:"table" },
+  { n:4, topic:"Gun Violence", extra:"stakeholder" },
+  { n:5, topic:"Mental Health", extra:"enactment" },
+  { n:6, topic:"Climate", extra:"logic6" },
+  { n:7, topic:"Reproductive Health", extra:"logic7" },
+];
+
+function weekInfo(n){ return WEEKS.find(w => w.n === n); }
+
+function defaultContext(n){
+  return "Instructor: add this week's top student-reported concerns, or a note on where we are in the CDC policy process, here.";
+}
+function defaultNewThisWeek(n){
+  switch(n){
+    case 1: return "Core prompts: issue, policy idea, intended impact.";
+    case 2: return "Core prompts continue — same three questions, new topic.";
+    case 3: return "Compare up to three policies against three criteria you define.";
+    case 4: return "Stakeholder analysis for the policy you're proposing.";
+    case 5: return "Map a path to enact your top policy.";
+    case 6: return "Build a logic model: Inputs → Activities → Outputs.";
+    case 7: return "Extend your logic model with short-, intermediate-, and long-term outcomes.";
+    default: return "";
+  }
+}
+
+/* ---------------- storage helpers ---------------- */
+async function sGet(key, shared){
+  try{
+    const r = await window.storage.get(key, shared);
+    return r ? r.value : null;
+  }catch(e){ return null; }
+}
+async function sSet(key, value, shared){
+  try{
+    const r = await window.storage.set(key, value, shared);
+    return !!r;
+  }catch(e){ return false; }
+}
+async function sList(prefix, shared){
+  try{
+    const r = await window.storage.list(prefix, shared);
+    return r ? r.keys : [];
+  }catch(e){ return []; }
+}
+function parseJSON(str, fallback){
+  if(!str) return fallback;
+  try{ return JSON.parse(str); }catch(e){ return fallback; }
+}
+
+/* ---------------- state ---------------- */
+let state = {
+  role: 'student',          // 'student' | 'instructor'
+  week: 1,
+  studentId: '',
+  weekConfig: { context: defaultContext(1), newThisWeek: defaultNewThisWeek(1) },
+  mySubmission: null,
+  peers: [],
+  pastList: [],             // [{week, data}] for signed-in student, loaded lazily
+  pastLoaded: false,
+  instructorSubs: [],       // submissions for selected week, instructor view
+  timer: { secondsLeft: 300, running: false, handle: null },
+  loading: true,
+};
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 2200);
+}
+
+/* ---------------- keys ---------------- */
+const kConfig   = (n)          => `week-config:${n}`;
+const kSub      = (n, id)      => `submissions:week${n}:${id}`;
+const kSubPref  = (n)          => `submissions:week${n}:`;
+const kDraft    = (n, id)      => `draft:week${n}:${id}`;
+
+/* ---------------- data loading ---------------- */
+async function loadWeekConfig(n){
+  const raw = await sGet(kConfig(n), true);
+  const cfg = parseJSON(raw, null);
+  state.weekConfig = cfg || { context: defaultContext(n), newThisWeek: defaultNewThisWeek(n) };
+}
+
+async function loadMySubmission(n, id){
+  if(!id){ state.mySubmission = null; return; }
+  const raw = await sGet(kSub(n, id), true);
+  state.mySubmission = parseJSON(raw, null);
+}
+
+async function loadPeerSample(n, id){
+  const keys = await sList(kSubPref(n), true);
+  const others = keys.filter(k => !id || k !== kSub(n, id));
+  // shuffle
+  for(let i = others.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [others[i], others[j]] = [others[j], others[i]];
+  }
+  const pick = others.slice(0, 5);
+  const results = [];
+  for(const key of pick){
+    const raw = await sGet(key, true);
+    const data = parseJSON(raw, null);
+    if(data) results.push(data);
+  }
+  state.peers = results;
+}
+
+async function loadDraft(n, id){
+  if(!id) return null;
+  const raw = await sGet(kDraft(n, id), false);
+  return parseJSON(raw, null);
+}
+
+async function loadInstructorSubs(n){
+  const keys = await sList(kSubPref(n), true);
+  const results = [];
+  for(const key of keys){
+    const raw = await sGet(key, true);
+    const data = parseJSON(raw, null);
+    if(data) results.push(data);
+  }
+  results.sort((a,b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
+  state.instructorSubs = results;
+}
+
+async function loadPastForStudent(id){
+  if(!id){ state.pastList = []; state.pastLoaded = true; return; }
+  const out = [];
+  for(const w of WEEKS){
+    const raw = await sGet(kSub(w.n, id), true);
+    const data = parseJSON(raw, null);
+    if(data) out.push({ week: w.n, data });
+  }
+  state.pastList = out;
+  state.pastLoaded = true;
+}
+
+/* ---------------- render ---------------- */
+function esc(s){
+  return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = renderHeader() + (state.role === 'student' ? renderStudent() : renderInstructor()) + renderFooterNotice();
+  bindEvents();
+}
+
+function renderHeader(){
+  const w = weekInfo(state.week);
+  return `
+  <div class="masthead">
+    <div>
+      <div class="course">PH 120R · Course Assistant Platform</div>
+      <h1>In-Class Group Activities</h1>
+      <div class="sub">Weekly policy-process workshop — individual response, then group discussion</div>
+    </div>
+    <div class="role-toggle">
+      <button data-role="student" class="${state.role==='student'?'active':''}">Student</button>
+      <button data-role="instructor" class="${state.role==='instructor'?'active':''}">Instructor</button>
+    </div>
+  </div>
+  <div class="controls-row">
+    <div class="week-select-wrap">
+      <span class="week-tab">Week</span>
+      <select id="weekSelect">
+        ${WEEKS.map(x => `<option value="${x.n}" ${x.n===state.week?'selected':''}>Week ${x.n} — ${esc(x.topic)}</option>`).join('')}
+      </select>
+    </div>
+    ${state.role==='student' ? `
+    <div>
+      <input type="text" id="studentIdInput" placeholder="Enter your student ID" value="${esc(state.studentId)}" style="width:180px;">
+    </div>` : ''}
+  </div>`;
+}
+
+function renderFooterNotice(){
+  return `<div class="notice">
+    Prototype note: there is no real login here — "student ID" is self-reported and used only to
+    tell your own responses apart from classmates'. Responses are stored for this course tool and a
+    random, anonymized sample of classmates' answers is shown after you submit each week. Please
+    don't include anything you wouldn't want a classmate to read.
+  </div>`;
+}
+
+/* ---------- student view ---------- */
+function renderStudent(){
+  if(state.loading) return `<div class="card">Loading this week's activity…</div>`;
+  if(!state.studentId){
+    return `<div class="card"><p class="empty">Enter your student ID above to begin this week's activity.</p></div>`;
+  }
+  const w = weekInfo(state.week);
+  let html = renderContextCard(w);
+
+  if(state.mySubmission){
+    html += renderLockedResponse(w, state.mySubmission);
+    html += renderPeerPanel();
+  } else {
+    html += renderTimer();
+    html += renderForm(w);
+  }
+  html += renderPastSubmissions();
+  return html;
+}
+
+function renderContextCard(w){
+  return `
+  <div class="card context-card">
+    <div class="stamp-wrap"><span class="stamp">New this week</span></div>
+    <div class="topic">Week ${w.n} · ${esc(w.topic)}</div>
+    <div class="context-body">${esc(state.weekConfig.context)}</div>
+    <div class="hint" style="margin-top:10px;"><strong>${esc(state.weekConfig.newThisWeek)}</strong></div>
+  </div>`;
+}
+
+function renderTimer(){
+  const s = state.timer.secondsLeft;
+  const mm = String(Math.floor(s/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  return `
+  <div class="card">
+    <h2><span class="idx">·</span>Work on your own first</h2>
+    <p class="hint">Take about five minutes to think this through by yourself. You'll be put into a random
+    group to discuss right after you submit.</p>
+    <div class="timer-box">
+      <div class="timer-display ${s===0?'done':''}" id="timerDisplay">${mm}:${ss}</div>
+      <button class="btn secondary small" id="timerStart">${state.timer.running ? 'Pause' : 'Start'}</button>
+      <button class="btn secondary small" id="timerReset">Reset</button>
+    </div>
+  </div>`;
+}
+
+function renderForm(w){
+  const draft = state._draftCache || {};
+  return `
+  <div class="card">
+    <h2><span class="idx">1</span>Issue / Problem <span class="required-badge">required</span></h2>
+    <div class="field">
+      <label>What campus issue does this relate to?</label>
+      <textarea id="f_issue" rows="2" placeholder="A short 2–3 sentence description.">${esc(draft.issue)}</textarea>
+    </div>
+  </div>
+  <div class="card">
+    <h2><span class="idx">2</span>Policy Solution <span class="required-badge">required</span></h2>
+    <div class="field">
+      <label>What policy — new, borrowed, or improved enforcement — addresses it?</label>
+      <textarea id="f_policy" rows="2">${esc(draft.policy)}</textarea>
+    </div>
+  </div>
+  <div class="card">
+    <h2><span class="idx">3</span>Intended Impact <span class="required-badge">required</span></h2>
+    <div class="field">
+      <label>What's the main outcome this policy aims to achieve?</label>
+      <textarea id="f_impact" rows="2">${esc(draft.impact)}</textarea>
+    </div>
+  </div>
+  ${renderExtraForm(w, draft)}
+  <div class="card">
+    <div class="flex-between">
+      <button class="btn secondary" id="saveDraftBtn">Save draft</button>
+      <button class="btn rust" id="submitBtn">Submit response</button>
+    </div>
+    <div class="hint" id="formStatus" style="margin-top:8px;"></div>
+  </div>`;
+}
+
+function renderExtraForm(w, draft){
+  const extra = draft.extra || {};
+  if(w.extra === 'table'){
+    const crit = extra.criteria || ['','',''];
+    const pol  = extra.policies || ['','',''];
+    const cells = extra.cells || [['','',''],['','',''],['','','']];
+    let rows = '';
+    for(let r=0;r<3;r++){
+      rows += `<tr><th><input type="text" class="critInput" data-r="${r}" placeholder="Criterion ${r+1}" value="${esc(crit[r])}"></th>`;
+      for(let c=0;c<3;c++){
+        rows += `<td><input type="text" class="cellInput" data-r="${r}" data-c="${c}" value="${esc(cells[r][c])}"></td>`;
+      }
+      rows += `</tr>`;
+    }
+    return `
+    <div class="card">
+      <h2><span class="idx">+</span>Policy Comparison Table</h2>
+      <p class="hint">Name three criteria (rows) and compare your three policy ideas (columns) against them.</p>
+      <table class="policy-table">
+        <tr><th class="corner">Criteria ⁄ Policy</th>
+          ${[0,1,2].map(c => `<th><input type="text" class="polInput" data-c="${c}" placeholder="Policy ${c+1}" value="${esc(pol[c])}"></th>`).join('')}
+        </tr>
+        ${rows}
+      </table>
+    </div>`;
+  }
+  if(w.extra === 'stakeholder'){
+    const list = extra.stakeholders && extra.stakeholders.length ? extra.stakeholders : [{who:'',reaction:''},{who:'',reaction:''}];
+    return `
+    <div class="card">
+      <h2><span class="idx">+</span>Stakeholder Analysis</h2>
+      <p class="hint">Who's affected by your policy, and how might they react?</p>
+      <div id="stakeList">
+        ${list.map((s,i)=>`
+          <div class="stake-block" data-i="${i}">
+            <div class="field">
+              <label>Stakeholder ${i+1}</label>
+              <input type="text" class="stakeWho" data-i="${i}" placeholder="e.g., campus police, residence hall staff" value="${esc(s.who)}">
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label>Likely reaction</label>
+              <textarea class="stakeReaction" data-i="${i}" rows="2">${esc(s.reaction)}</textarea>
+            </div>
+          </div>`).join('')}
+      </div>
+      <button class="btn secondary small" id="addStakeBtn">+ Add another stakeholder</button>
+    </div>`;
+  }
+  if(w.extra === 'enactment'){
+    return `
+    <div class="card">
+      <h2><span class="idx">+</span>Path to Enactment</h2>
+      <div class="field">
+        <label>How might your top policy actually get enacted?</label>
+        <textarea id="f_enactment" rows="2">${esc(extra.enactment)}</textarea>
+      </div>
+    </div>`;
+  }
+  if(w.extra === 'logic6' || w.extra === 'logic7'){
+    const boxes = extra.boxes || ['','','','','',''];
+    const labels7 = ['Inputs','Activities','Outputs','Short-term outcomes','Intermediate outcomes','Long-term outcomes'];
+    const count = w.extra === 'logic6' ? 3 : 6;
+    let row = '<div class="logic-row">';
+    for(let i=0;i<count;i++){
+      if(i>0) row += `<div class="logic-arrow">→</div>`;
+      row += `<div class="logic-box">
+        <label class="box-label">${labels7[i]}</label>
+        <textarea class="logicBox" data-i="${i}" rows="3">${esc(boxes[i])}</textarea>
+      </div>`;
+    }
+    row += '</div>';
+    return `
+    <div class="card">
+      <h2><span class="idx">+</span>Logic Model${w.extra==='logic7' ? ' (extended)' : ''}</h2>
+      ${row}
+    </div>`;
+  }
+  return '';
+}
+
+function collectFormData(w){
+  const g = id => (document.getElementById(id) || {}).value || '';
+  const data = {
+    studentId: state.studentId,
+    timestamp: new Date().toISOString(),
+    issue: g('f_issue'),
+    policy: g('f_policy'),
+    impact: g('f_impact'),
+    extra: {},
+  };
+  if(w.extra === 'table'){
+    const criteria = Array.from(document.querySelectorAll('.critInput')).map(el => el.value);
+    const policies = Array.from(document.querySelectorAll('.polInput')).map(el => el.value);
+    const cells = [['','',''],['','',''],['','','']];
+    document.querySelectorAll('.cellInput').forEach(el => {
+      cells[+el.dataset.r][+el.dataset.c] = el.value;
+    });
+    data.extra = { criteria, policies, cells };
+  } else if(w.extra === 'stakeholder'){
+    const whos = Array.from(document.querySelectorAll('.stakeWho'));
+    const stakeholders = whos.map((el,i) => ({
+      who: el.value,
+      reaction: (document.querySelector(`.stakeReaction[data-i="${el.dataset.i}"]`) || {}).value || ''
+    }));
+    data.extra = { stakeholders };
+  } else if(w.extra === 'enactment'){
+    data.extra = { enactment: g('f_enactment') };
+  } else if(w.extra === 'logic6' || w.extra === 'logic7'){
+    const boxes = Array.from(document.querySelectorAll('.logicBox')).sort((a,b)=>a.dataset.i-b.dataset.i).map(el=>el.value);
+    data.extra = { boxes };
+  }
+  return data;
+}
+
+function renderLockedResponse(w, sub){
+  return `
+  <div class="card">
+    <div class="flex-between"><h2 style="margin:0;"><span class="idx">✓</span>Your submitted response</h2>
+    <span class="status-line">${new Date(sub.timestamp).toLocaleString()}</span></div>
+    <p><strong>Issue:</strong> ${esc(sub.issue)}</p>
+    <p><strong>Policy:</strong> ${esc(sub.policy)}</p>
+    <p><strong>Intended impact:</strong> ${esc(sub.impact)}</p>
+    ${renderExtraReadonly(w, sub.extra)}
+    ${sub.instructorComment ? `<div class="comment-box"><div class="who">Instructor comment</div>${esc(sub.instructorComment)}</div>` : ''}
+  </div>`;
+}
+
+function renderExtraReadonly(w, extra){
+  extra = extra || {};
+  if(w.extra === 'table'){
+    const crit = extra.criteria || []; const pol = extra.policies || []; const cells = extra.cells || [];
+    let rows = '';
+    for(let r=0;r<3;r++){
+      rows += `<tr><th>${esc(crit[r])}</th>${[0,1,2].map(c=>`<td>${esc((cells[r]||[])[c])}</td>`).join('')}</tr>`;
+    }
+    return `<table class="policy-table"><tr><th class="corner">Criteria ⁄ Policy</th>${[0,1,2].map(c=>`<th>${esc(pol[c])}</th>`).join('')}</tr>${rows}</table>`;
+  }
+  if(w.extra === 'stakeholder'){
+    return (extra.stakeholders||[]).map(s => `<p><strong>${esc(s.who)}:</strong> ${esc(s.reaction)}</p>`).join('');
+  }
+  if(w.extra === 'enactment'){
+    return `<p><strong>Enactment path:</strong> ${esc(extra.enactment)}</p>`;
+  }
+  if(w.extra === 'logic6' || w.extra === 'logic7'){
+    const labels = ['Inputs','Activities','Outputs','Short-term outcomes','Intermediate outcomes','Long-term outcomes'];
+    const boxes = extra.boxes || [];
+    return `<div class="logic-row">${boxes.map((b,i)=>`${i>0?'<div class="logic-arrow">→</div>':''}<div class="logic-box"><label class="box-label">${labels[i]}</label><p>${esc(b)}</p></div>`).join('')}</div>`;
+  }
+  return '';
+}
+
+function renderPeerPanel(){
+  if(!state.peers.length){
+    return `<div class="card"><h2><span class="idx">·</span>Peer responses</h2><p class="empty">No classmate responses yet — check back once more people submit, then discuss what you notice as a group.</p></div>`;
+  }
+  return `
+  <div class="card">
+    <h2><span class="idx">·</span>Peer responses <span class="hint" style="display:inline;">(anonymized, ${state.peers.length} shown)</span></h2>
+    ${state.peers.map((p,i) => `
+      <div class="peer-item">
+        <div class="peer-label">Classmate ${i+1}</div>
+        <p><strong>Issue:</strong> ${esc(p.issue)}</p>
+        <p><strong>Policy:</strong> ${esc(p.policy)}</p>
+      </div>`).join('')}
+    <p class="hint">Now discuss with your group: what's similar or different across these ideas?</p>
+  </div>`;
+}
+
+function renderPastSubmissions(){
+  if(!state.pastLoaded) return '';
+  if(!state.pastList.length) return '';
+  return `
+  <div class="card">
+    <h2><span class="idx">·</span>Your past submissions</h2>
+    ${state.pastList.map(({week, data}) => {
+      const w = weekInfo(week);
+      return `<details class="past-week"><summary>Week ${week} — ${esc(w.topic)}</summary>
+        <div class="past-body">
+          <p><strong>Issue:</strong> ${esc(data.issue)}</p>
+          <p><strong>Policy:</strong> ${esc(data.policy)}</p>
+          <p><strong>Intended impact:</strong> ${esc(data.impact)}</p>
+          ${renderExtraReadonly(w, data.extra)}
+          ${data.instructorComment ? `<div class="comment-box"><div class="who">Instructor comment</div>${esc(data.instructorComment)}</div>` : ''}
+        </div>
+      </details>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ---------- instructor view ---------- */
+function renderInstructor(){
+  if(state.loading) return `<div class="card">Loading…</div>`;
+  const w = weekInfo(state.week);
+  return `
+  <div class="card">
+    <h2><span class="idx">·</span>Week ${w.n} background & context</h2>
+    <div class="field">
+      <label>Background / context block (shown to students)</label>
+      <textarea id="ctxInput" rows="3">${esc(state.weekConfig.context)}</textarea>
+    </div>
+    <div class="field">
+      <label>"New this week" message</label>
+      <textarea id="newInput" rows="2">${esc(state.weekConfig.newThisWeek)}</textarea>
+    </div>
+    <button class="btn" id="saveCtxBtn">Save week settings</button>
+    <span class="hint" id="ctxStatus" style="margin-left:10px;"></span>
+  </div>
+
+  <div class="card">
+    <div class="flex-between">
+      <h2 style="margin:0;"><span class="idx">·</span>Participation</h2>
+      <span class="status-line">${state.instructorSubs.length} submission${state.instructorSubs.length===1?'':'s'} this week</span>
+    </div>
+    <button class="btn secondary small" id="exportBtn">Export all submissions (CSV)</button>
+  </div>
+
+  <div class="card">
+    <h2><span class="idx">·</span>Student submissions — Week ${w.n}</h2>
+    ${state.instructorSubs.length ? state.instructorSubs.map(renderInstructorSubRow).join('') : `<p class="empty">No submissions yet for this week.</p>`}
+  </div>`;
+}
+
+function renderInstructorSubRow(sub){
+  const w = weekInfo(state.week);
+  return `
+  <div class="sub-row" data-id="${esc(sub.studentId)}">
+    <div class="meta"><span>${esc(sub.studentId)}${sub.featured ? '<span class="featured-badge">Featured</span>' : ''}</span><span>${new Date(sub.timestamp).toLocaleString()}</span></div>
+    <p><strong>Issue:</strong> ${esc(sub.issue)}</p>
+    <p><strong>Policy:</strong> ${esc(sub.policy)}</p>
+    <p><strong>Impact:</strong> ${esc(sub.impact)}</p>
+    ${renderExtraReadonly(w, sub.extra)}
+    <div class="field" style="margin-top:8px;">
+      <label>Instructor comment (optional)</label>
+      <textarea class="commentInput" rows="2">${esc(sub.instructorComment)}</textarea>
+    </div>
+    <div class="flex-between">
+      <label style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-family:var(--serif);font-size:13px;">
+        <input type="checkbox" class="featureCheck" ${sub.featured ? 'checked' : ''}> Feature this response for class sharing
+      </label>
+      <button class="btn secondary small saveCommentBtn">Save</button>
+    </div>
+  </div>`;
+}
+
+/* ---------------- event binding ---------------- */
+function bindEvents(){
+  document.querySelectorAll('[data-role]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      state.role = btn.dataset.role;
+      await refreshForRole();
+      render();
+    });
+  });
+
+  const weekSelect = document.getElementById('weekSelect');
+  if(weekSelect){
+    weekSelect.addEventListener('change', async (e) => {
+      state.week = +e.target.value;
+      state.loading = true; render();
+      await loadForCurrentWeek();
+      state.loading = false; render();
+    });
+  }
+
+  const idInput = document.getElementById('studentIdInput');
+  if(idInput){
+    idInput.addEventListener('change', async (e) => {
+      state.studentId = e.target.value.trim();
+      state.pastLoaded = false;
+      state.loading = true; render();
+      await loadForCurrentWeek();
+      state.loading = false; render();
+    });
+  }
+
+  // timer — updates its own DOM directly; never triggers a full render()
+  // so in-progress form answers elsewhere on the page are never lost.
+  const timerStart = document.getElementById('timerStart');
+  if(timerStart){
+    timerStart.addEventListener('click', () => {
+      state.timer.running = !state.timer.running;
+      timerStart.textContent = state.timer.running ? 'Pause' : 'Start';
+      if(state.timer.running){
+        state.timer.handle = setInterval(() => {
+          if(state.timer.secondsLeft > 0){
+            state.timer.secondsLeft--;
+            const d = document.getElementById('timerDisplay');
+            if(d){
+              const mm = String(Math.floor(state.timer.secondsLeft/60)).padStart(2,'0');
+              const ss = String(state.timer.secondsLeft%60).padStart(2,'0');
+              d.textContent = `${mm}:${ss}`;
+              if(state.timer.secondsLeft === 0){ d.classList.add('done'); }
+            }
+          } else {
+            clearInterval(state.timer.handle);
+            state.timer.running = false;
+            const btn = document.getElementById('timerStart');
+            if(btn) btn.textContent = 'Start';
+          }
+        }, 1000);
+      } else {
+        clearInterval(state.timer.handle);
+      }
+    });
+  }
+  const timerReset = document.getElementById('timerReset');
+  if(timerReset){
+    timerReset.addEventListener('click', () => {
+      clearInterval(state.timer.handle);
+      state.timer = { secondsLeft: 300, running:false, handle:null };
+      const d = document.getElementById('timerDisplay');
+      if(d){ d.textContent = '05:00'; d.classList.remove('done'); }
+      const btn = document.getElementById('timerStart');
+      if(btn) btn.textContent = 'Start';
+    });
+  }
+
+  // add stakeholder
+  const addStakeBtn = document.getElementById('addStakeBtn');
+  if(addStakeBtn){
+    addStakeBtn.addEventListener('click', () => {
+      const list = document.getElementById('stakeList');
+      const i = list.children.length;
+      const block = document.createElement('div');
+      block.className = 'stake-block';
+      block.dataset.i = i;
+      block.innerHTML = `
+        <div class="field"><label>Stakeholder ${i+1}</label><input type="text" class="stakeWho" data-i="${i}"></div>
+        <div class="field" style="margin-bottom:0;"><label>Likely reaction</label><textarea class="stakeReaction" data-i="${i}" rows="2"></textarea></div>`;
+      list.appendChild(block);
+    });
+  }
+
+  // save draft / submit
+  const saveDraftBtn = document.getElementById('saveDraftBtn');
+  if(saveDraftBtn){
+    saveDraftBtn.addEventListener('click', async () => {
+      const w = weekInfo(state.week);
+      const data = collectFormData(w);
+      const ok = await sSet(kDraft(state.week, state.studentId), JSON.stringify(data), false);
+      document.getElementById('formStatus').textContent = ok ? 'Draft saved.' : 'Could not save draft — try again.';
+      toast(ok ? 'Draft saved' : 'Save failed');
+    });
+  }
+  const submitBtn = document.getElementById('submitBtn');
+  if(submitBtn){
+    submitBtn.addEventListener('click', async () => {
+      const w = weekInfo(state.week);
+      const data = collectFormData(w);
+      if(!data.issue.trim() || !data.policy.trim() || !data.impact.trim()){
+        document.getElementById('formStatus').textContent = 'Please fill in issue, policy, and intended impact before submitting.';
+        return;
+      }
+      submitBtn.disabled = true;
+      const ok = await sSet(kSub(state.week, state.studentId), JSON.stringify(data), true);
+      if(ok){
+        state.mySubmission = data;
+        await loadPeerSample(state.week, state.studentId);
+        await loadPastForStudent(state.studentId);
+        toast('Response submitted');
+        render();
+      } else {
+        document.getElementById('formStatus').textContent = 'Submission failed — please try again.';
+        submitBtn.disabled = false;
+      }
+    });
+  }
+
+  // instructor: save week config
+  const saveCtxBtn = document.getElementById('saveCtxBtn');
+  if(saveCtxBtn){
+    saveCtxBtn.addEventListener('click', async () => {
+      const context = document.getElementById('ctxInput').value;
+      const newThisWeek = document.getElementById('newInput').value;
+      const ok = await sSet(kConfig(state.week), JSON.stringify({ context, newThisWeek }), true);
+      state.weekConfig = { context, newThisWeek };
+      document.getElementById('ctxStatus').textContent = ok ? 'Saved.' : 'Save failed.';
+      toast(ok ? 'Week settings saved' : 'Save failed');
+    });
+  }
+
+  // instructor: per-submission save
+  document.querySelectorAll('.saveCommentBtn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.closest('.sub-row');
+      const studentId = row.dataset.id;
+      const comment = row.querySelector('.commentInput').value;
+      const featured = row.querySelector('.featureCheck').checked;
+      const raw = await sGet(kSub(state.week, studentId), true);
+      const data = parseJSON(raw, null);
+      if(!data){ toast('Could not find submission'); return; }
+      data.instructorComment = comment;
+      data.featured = featured;
+      const ok = await sSet(kSub(state.week, studentId), JSON.stringify(data), true);
+      toast(ok ? 'Saved' : 'Save failed');
+      if(ok) await loadInstructorSubs(state.week);
+      render();
+    });
+  });
+
+  // export
+  const exportBtn = document.getElementById('exportBtn');
+  if(exportBtn){
+    exportBtn.addEventListener('click', exportAllCSV);
+  }
+}
+
+async function exportAllCSV(){
+  const keys = await sList('submissions:', true);
+  const rows = [['week','studentId','timestamp','issue','policy','impact','extra','instructorComment','featured']];
+  for(const key of keys){
+    const raw = await sGet(key, true);
+    const d = parseJSON(raw, null);
+    if(!d) continue;
+    const weekMatch = key.match(/^submissions:week(\d+):/);
+    const wk = weekMatch ? weekMatch[1] : '';
+    rows.push([wk, d.studentId, d.timestamp, d.issue, d.policy, d.impact, JSON.stringify(d.extra||{}), d.instructorComment||'', d.featured?'yes':'no']);
+  }
+  const csv = rows.map(r => r.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'ph120r-submissions.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('CSV downloaded');
+}
+
+/* ---------------- load orchestration ---------------- */
+async function loadForCurrentWeek(){
+  await loadWeekConfig(state.week);
+  if(state.role === 'student'){
+    if(state.studentId){
+      await loadMySubmission(state.week, state.studentId);
+      if(state.mySubmission){
+        await loadPeerSample(state.week, state.studentId);
+      } else {
+        const draft = await loadDraft(state.week, state.studentId);
+        state._draftCache = draft || {};
+      }
+      if(!state.pastLoaded) await loadPastForStudent(state.studentId);
+    }
+  } else {
+    await loadInstructorSubs(state.week);
+  }
+}
+
+async function refreshForRole(){
+  state.loading = true;
+  await loadForCurrentWeek();
+  state.loading = false;
+}
+
+async function init(){
+  state.loading = true;
+  render();
+  await loadForCurrentWeek();
+  state.loading = false;
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
